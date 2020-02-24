@@ -1,7 +1,6 @@
 package file.edit;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -29,21 +28,17 @@ public class ModifyXlsxFiles {
     XSSFWorkbook workBook = new XSSFWorkbook(file);
     XSSFSheet workSheet = workBook.getSheetAt(0);
     DataFormatter cellFormatter = new DataFormatter();
-    Iterator<Row> rowIterator = workSheet.rowIterator();
-    Row row;
     StringBuilder stringData = new StringBuilder();
-    while (rowIterator.hasNext()) {
-      row = rowIterator.next();
-      Iterator<Cell> cellIterator = row.cellIterator();
+    for (Row row : workSheet) {
       Cell cell;
-      while (cellIterator.hasNext()) {
-        cell = cellIterator.next();
+      for(int i=0; i<row.getLastCellNum(); i++) {
+        cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
         stringData.append(cellFormatter.formatCellValue(cell));
-        if (cellIterator.hasNext())
-          stringData.append(separator);
+        if(i+1 < row.getLastCellNum()) stringData.append(separator);
       }
       stringData.append(System.lineSeparator());
     }
+    
     File outputFile = new File(FilenameUtils.getBaseName(file.getName()) + ".csv");
     FileUtils.write(outputFile, stringData, "UTF-8");
     workBook.close();
